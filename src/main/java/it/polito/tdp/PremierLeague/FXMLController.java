@@ -5,9 +5,14 @@
 package it.polito.tdp.PremierLeague;
 
 import java.net.URL;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import org.jgrapht.Graphs;
+
+import it.polito.tdp.PremierLeague.model.Adiacenza;
 import it.polito.tdp.PremierLeague.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -39,7 +44,7 @@ public class FXMLController {
     private TextField txtMinuti; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbMese"
-    private ComboBox<?> cmbMese; // Value injected by FXMLLoader
+    private ComboBox<Month> cmbMese; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbM1"
     private ComboBox<?> cmbM1; // Value injected by FXMLLoader
@@ -52,12 +57,33 @@ public class FXMLController {
 
     @FXML
     void doConnessioneMassima(ActionEvent event) {
-    	
+    	txtResult.clear();
+    	String a = txtMinuti.getText();
+    	Integer min= Integer.parseInt(a);
+    	Month m = cmbMese.getValue();
+    	List <Adiacenza> connessioni = model.connessioniMax(m, min);
+    	for(Adiacenza ad : connessioni) {
+    		txtResult.appendText(ad.toString() + "\n");
+    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	
+    	txtResult.clear();
+    	String min = txtMinuti.getText();
+    	Month mese = cmbMese.getValue();
+    		Integer minuti = Integer.parseInt(min);
+    		if(minuti == null || minuti >90 || minuti < 0 || mese == null) {
+    			txtResult.appendText("errore inserisci un numero di minuti valido");
+    		} else {
+    			model.creaGrafo(mese, minuti);
+    			txtResult.appendText("Grafo creato con " + model.nVertici() + " vertici e " + model.nArchi()+ " archi");
+    			txtResult.appendText("\n");
+    			btnConnessioneMassima.setDisable(false);
+    		}
+   
+    			
     }
 
     @FXML
@@ -79,7 +105,12 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
-  
+    	List <Month> listaMesi = new ArrayList <> ();
+    	for(int i =1 ; i<13; i++) {
+    		listaMesi.add(Month.of(i));
+    	}
+    	cmbMese.getItems().addAll(listaMesi);
+    	btnConnessioneMassima.setDisable(true);
     }
     
     
